@@ -53,7 +53,8 @@ type bpfSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
-	EgressProgFunc  *ebpf.ProgramSpec `ebpf:"egress_prog_func"`
+	Hook1           *ebpf.ProgramSpec `ebpf:"hook1"`
+	Hook2           *ebpf.ProgramSpec `ebpf:"hook2"`
 	IngressProgFunc *ebpf.ProgramSpec `ebpf:"ingress_prog_func"`
 }
 
@@ -61,8 +62,7 @@ type bpfProgramSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfMapSpecs struct {
-	EgressPktCount  *ebpf.MapSpec `ebpf:"egress_pkt_count"`
-	IngressPktCount *ebpf.MapSpec `ebpf:"ingress_pkt_count"`
+	Hooks *ebpf.MapSpec `ebpf:"hooks"`
 }
 
 // bpfObjects contains all objects after they have been loaded into the kernel.
@@ -84,14 +84,12 @@ func (o *bpfObjects) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfMaps struct {
-	EgressPktCount  *ebpf.Map `ebpf:"egress_pkt_count"`
-	IngressPktCount *ebpf.Map `ebpf:"ingress_pkt_count"`
+	Hooks *ebpf.Map `ebpf:"hooks"`
 }
 
 func (m *bpfMaps) Close() error {
 	return _BpfClose(
-		m.EgressPktCount,
-		m.IngressPktCount,
+		m.Hooks,
 	)
 }
 
@@ -99,13 +97,15 @@ func (m *bpfMaps) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
-	EgressProgFunc  *ebpf.Program `ebpf:"egress_prog_func"`
+	Hook1           *ebpf.Program `ebpf:"hook1"`
+	Hook2           *ebpf.Program `ebpf:"hook2"`
 	IngressProgFunc *ebpf.Program `ebpf:"ingress_prog_func"`
 }
 
 func (p *bpfPrograms) Close() error {
 	return _BpfClose(
-		p.EgressProgFunc,
+		p.Hook1,
+		p.Hook2,
 		p.IngressProgFunc,
 	)
 }

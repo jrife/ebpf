@@ -7,7 +7,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -49,51 +48,7 @@ func main() {
 	defer l.Close()
 
 	log.Printf("Attached TCx program to INGRESS iface %q (index %d)", iface.Name, iface.Index)
-
-	// Attach the program to Egress TC.
-	l2, err := link.AttachTCX(link.TCXOptions{
-		Interface: iface.Index,
-		Program:   objs.EgressProgFunc,
-		Attach:    ebpf.AttachTCXEgress,
-	})
-	if err != nil {
-		log.Fatalf("could not attach TCx program: %s", err)
-	}
-	defer l2.Close()
-
-	log.Printf("Attached TCx program to EGRESS iface %q (index %d)", iface.Name, iface.Index)
 	log.Printf("Press Ctrl-C to exit and remove the program")
 
-	// Print the contents of the counters maps.
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
-	for range ticker.C {
-		s, err := formatCounters(objs.IngressPktCount, objs.EgressPktCount)
-		if err != nil {
-			log.Printf("Error reading map: %s", err)
-			continue
-		}
-
-		log.Printf("Packet Count: %s\n", s)
-	}
-}
-
-func formatCounters(ingressMap, egressMap *ebpf.Map) (string, error) {
-	var (
-		ingressPacketCount uint64
-		egressPacketCount  uint64
-		key                int32
-	)
-
-	// retrieve value from the ingress map
-	if err := ingressMap.Lookup(&key, &ingressPacketCount); err != nil {
-		return "", err
-	}
-
-	// retrieve value from the egress map
-	if err := egressMap.Lookup(&key, &egressPacketCount); err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%10v Ingress, %10v Egress", ingressPacketCount, egressPacketCount), nil
+	time.Sleep(time.Hour)
 }
